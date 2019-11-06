@@ -288,6 +288,18 @@ class Markdown(object):
         re.IGNORECASE | re.VERBOSE
     )
 
+    _a_md2html = re.compile(r"""
+        <(a)
+        (
+            [^>]*
+            href=   # href is required
+            ['"]?   # HTML5 attribute values do not have to be quoted
+            [^#'"]  # We don't want to match href values that start with # (like footnotes)
+        )
+        """,
+        re.IGNORECASE | re.VERBOSE
+    )
+
     # Opens the linked document in a new window or tab
     # should only used in <a> tags with an "href" attribute.
     # same with _a_nofollow
@@ -387,6 +399,9 @@ class Markdown(object):
 
         if "nofollow" in self.extras:
             text = self._a_nofollow.sub(r'<\1 rel="nofollow"\2', text)
+
+        if "md2html" in self.extras:
+            text = self._a_md2html.sub(r'<\1 .html\2', text)
 
         if "target-blank-links" in self.extras:
             text = self._a_blank.sub(r'<\1 target="_blank"\2', text)
